@@ -3,10 +3,11 @@
 
 #include <Arduino.h>
 
-class Hardware {
+class HardwareManager {
 public:
-    Hardware();
-    void init();
+    HardwareManager();
+    void begin();
+    void update();
 private:
     // Private members
 };
