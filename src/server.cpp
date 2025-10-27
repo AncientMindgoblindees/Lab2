@@ -37,18 +37,39 @@ void server_loop() {
 }
 
 void handle_OnConnect() {
-    server.send(200, "text/html", 
+    server.send(200, "text/html",
         "<!DOCTYPE html><html><body>"
         "<h1>ESP32 Web Server</h1>"
         "<p>Backend Active</p>"
+        "<p id='lockstate'>Signal: ...</p>"
+        "<script>"
+        "function updateLock() {"
+        "  fetch('/data').then(r => r.json()).then(d => {"
+        "    let s = d.signal_lock === 1 ? 'LOCKED (440Hz detected)' : 'UNLOCKED (No 440Hz)';"
+        "    document.getElementById('lockstate').innerText = 'Signal: ' + s;"
+        "  });"
+        "}"
+        "setInterval(updateLock, 1000);"
+        "updateLock();"
+        "</script>"
         "</body></html>");
 }
 
 void handle_request() {
     server.sendHeader("Access-Control-Allow-Origin", "*");
     RequestFlag = true;
-    server.send(200, "application/json", 
-        "{\"Sending Data\":" + String(RequestFlag) + "}");
+    // If hardware pointer is available, include ADC data and lock state
+    String payload = "{";
+    if (g_hwManager) {
+        float v = g_hwManager->getLatestVoltage();
+        float rms = g_hwManager->getBufferRMS();
+        int lock = g_hwManager->getSignalLockState();
+        payload += "\"adc_voltage\":" + String(v, 4) + ",";
+        payload += "\"adc_rms\":" + String(rms, 4) + ",";
+        payload += "\"signal_lock\":" + String(lock) + ",";
+    }
+    payload += "\"sending\":" + String(RequestFlag) + "}";
+    server.send(200, "application/json", payload);
 }
 
 void handle_NotFound() {

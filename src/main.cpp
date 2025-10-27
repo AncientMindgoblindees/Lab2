@@ -23,8 +23,18 @@ void serverTask(void * parameter) {
 
 // FreeRTOS task for hardware
 void hardwareTask(void * parameter) {
+  int lastLock = -1;
   for(;;) {
     hardwareManager.update();
+    int lock = hardwareManager.getSignalLockState();
+    if (lock != lastLock) {
+      if (lock == 1) {
+        Serial.println("LOCKED: 440Hz detected");
+      } else {
+        Serial.println("UNLOCKED: No 440Hz signal");
+      }
+      lastLock = lock;
+    }
     taskYIELD(); // Yield to other tasks but run as fast as possible
   }
 }
