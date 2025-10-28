@@ -45,7 +45,7 @@ void handle_OnConnect() {
         "<script>"
         "function updateLock() {"
         "  fetch('/data').then(r => r.json()).then(d => {"
-        "    let s = d.signal_lock === 1 ? 'LOCKED (440Hz detected)' : 'UNLOCKED (No 440Hz)';"
+        "    let s = d.signal_lock === 1 ? '440Hz detected' : 'No 440Hz detected';"
         "    document.getElementById('lockstate').innerText = 'Signal: ' + s;"
         "  });"
         "}"
@@ -61,11 +61,7 @@ void handle_request() {
     // If hardware pointer is available, include ADC data and lock state
     String payload = "{";
     if (g_hwManager) {
-        float v = g_hwManager->getLatestVoltage();
-        float rms = g_hwManager->getBufferRMS();
         int lock = g_hwManager->getSignalLockState();
-        payload += "\"adc_voltage\":" + String(v, 4) + ",";
-        payload += "\"adc_rms\":" + String(rms, 4) + ",";
         payload += "\"signal_lock\":" + String(lock) + ",";
     }
     payload += "\"sending\":" + String(RequestFlag) + "}";

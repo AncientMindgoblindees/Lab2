@@ -29,9 +29,9 @@ void hardwareTask(void * parameter) {
     int lock = hardwareManager.getSignalLockState();
     if (lock != lastLock) {
       if (lock == 1) {
-        Serial.println("LOCKED: 440Hz detected");
+        Serial.println("440Hz detected");
       } else {
-        Serial.println("UNLOCKED: No 440Hz signal");
+        Serial.println("No 440Hz signal");
       }
       lastLock = lock;
     }
