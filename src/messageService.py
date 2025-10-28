@@ -2,7 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 SENDER_EMAIL = "jpbleeden@gmail.com"
-APP_PASSWORD = "lfmeifzirtaycmml"       # your Gmail App Password
+APP_PASSWORD = "lfmeifzirtaycmml"
 RECIPIENT_SMS = "3195699155@vtext.com"  # Verizon SMS gateway
 
 def send_text_alert():
