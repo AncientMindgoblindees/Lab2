@@ -1,21 +1,14 @@
-"""
-alertClient.py
---------------
-Polls the ESP32 web server (AP mode) for sensor data.
-When signal_lock == 0 (beam blocked), sends a text alert via messageService.
-"""
-
-import requests
-import time
+import requests, time
 from messageService import send_text_alert
 
-# --- Configuration ---
 ESP32_URL = "http://192.168.1.1/data"
-POLL_INTERVAL = 2       # seconds between checks
-ALERT_COOLDOWN = 60     # seconds between alert messages
+POLL_INTERVAL = 2        # seconds between polls
+ALERT_COOLDOWN = 20      # seconds between text alerts
 
 def poll_esp32():
     last_alert_time = 0
+    beam_blocked = False   # tracks previous state
+
     print("[INFO] Polling ESP32 for IR status...")
 
     while True:
@@ -23,16 +16,32 @@ def poll_esp32():
             r = requests.get(ESP32_URL, timeout=3)
             if r.status_code == 200:
                 data = r.json()
-                print("[DEBUG] Received:", data)
-
                 lock_state = data.get("signal_lock")
-                if lock_state == 0:   # Beam blocked
-                    if time.time() - last_alert_time > ALERT_COOLDOWN:
-                        print("[ALERT] IR beam interrupted — sending SMS...")
+
+                # signal blocked
+                if lock_state == 0:
+                    if not beam_blocked:
+                        # just transitioned to "blocked"
+                        beam_blocked = True
+                        last_alert_time = 0  # reset timer
+                        print("[ALERT] Beam interrupted! Sending first alert...")
                         send_text_alert()
                         last_alert_time = time.time()
+                    elif time.time() - last_alert_time > ALERT_COOLDOWN:
+                        # still blocked and the cooldown expired, send again
+                        print("[INFO] Beam still blocked, sending reminder alert...")
+                        send_text_alert()
+                        last_alert_time = time.time()
+
+                # --- beam restored ---
+                elif lock_state == 1:
+                    if beam_blocked:
+                        print("[OK] Beam restored.")
+                    beam_blocked = False
+
                 else:
-                    print("[OK] IR beam detected.")
+                    print("[WARN] Unexpected data:", data)
+
             else:
                 print(f"[WARN] Bad response: {r.status_code}")
 
@@ -40,9 +49,3 @@ def poll_esp32():
             print("[ERR] Connection error:", e)
 
         time.sleep(POLL_INTERVAL)
-
-if __name__ == "__main__":
-    try:
-        poll_esp32()
-    except KeyboardInterrupt:
-        print("\n[INFO] Stopping polling.")
