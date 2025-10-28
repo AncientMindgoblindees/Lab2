@@ -1,44 +1,48 @@
+"""
+alertClient.py
+--------------
+Polls the ESP32 web server (AP mode) for sensor data.
+When signal_lock == 0 (beam blocked), sends a text alert via messageService.
+"""
+
 import requests
 import time
 from messageService import send_text_alert
 
-ESP32_URL = "http://192.168.1.1/data" 
-POLL_INTERVAL = 1.1   # seconds between status checks
-ALERT_COOLDOWN = 60 # seconds between text alerts
+# --- Configuration ---
+ESP32_URL = "http://192.168.1.1/data"
+POLL_INTERVAL = 2       # seconds between checks
+ALERT_COOLDOWN = 60     # seconds between alert messages
 
 def poll_esp32():
     last_alert_time = 0
-    print("Starting ESP32 polling...")
+    print("[INFO] Polling ESP32 for IR status...")
 
     while True:
         try:
-            response = requests.get(ESP32_URL, timeout=3)
-            
-            if response.status_code == 200:
-                data = response.json()
-                print("Received:", data)
+            r = requests.get(ESP32_URL, timeout=3)
+            if r.status_code == 200:
+                data = r.json()
+                print("[DEBUG] Received:", data)
 
-                # Example JSON your ESP32 might return:
-                # {"signal_blocked": true}
-                if data.get("signal_blocked"):
+                lock_state = data.get("signal_lock")
+                if lock_state == 0:   # Beam blocked
                     if time.time() - last_alert_time > ALERT_COOLDOWN:
-                        print("Signal blocked — sending SMS...")
-                        success = send_text_alert()
-                        if success:
-                            last_alert_time = time.time()
+                        print("[ALERT] IR beam interrupted — sending SMS...")
+                        send_text_alert()
+                        last_alert_time = time.time()
                 else:
-                    print("IR beam detected.")
+                    print("[OK] IR beam detected.")
             else:
-                print(f"Bad response: {response.status_code}")
+                print(f"[WARN] Bad response: {r.status_code}")
 
         except requests.exceptions.RequestException as e:
-            print("Connection error:", e)
+            print("[ERR] Connection error:", e)
 
         time.sleep(POLL_INTERVAL)
 
-# --- Main ---
 if __name__ == "__main__":
     try:
         poll_esp32()
     except KeyboardInterrupt:
-        print("\nStopping polling script.")
+        print("\n[INFO] Stopping polling.")
