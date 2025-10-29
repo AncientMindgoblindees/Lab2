@@ -24,19 +24,19 @@ def poll_esp32():
                         # just transitioned to "blocked"
                         beam_blocked = True
                         last_alert_time = 0  # reset timer
-                        print("[ALERT] Beam interrupted! Sending first alert...")
+                        print("[ALERT] Signal interrupted! Sending first alert...")
                         send_text_alert()
                         last_alert_time = time.time()
                     elif time.time() - last_alert_time > ALERT_COOLDOWN:
                         # still blocked and the cooldown expired, send again
-                        print("[INFO] Beam still blocked, sending reminder alert...")
+                        print("[INFO] Signal still blocked, sending reminder alert...")
                         send_text_alert()
                         last_alert_time = time.time()
 
-                # --- beam restored ---
+                # signal restored
                 elif lock_state == 1:
                     if beam_blocked:
-                        print("[OK] Beam restored.")
+                        print("[OK] Signal restored.")
                     beam_blocked = False
 
                 else:
