@@ -20,6 +20,7 @@ public:
 private:
     // ADC config
     const int _adcPin = 34; // ADC1 channel (input-only) on many ESP32 boards
+    const int indicatorLEDPin = 14; // LED indicator pin 
     const uint16_t _adcMax = 4095; // 12-bit ADC on ESP32
 
     // Sampling buffer (circular)

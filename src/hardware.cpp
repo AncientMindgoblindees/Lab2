@@ -3,6 +3,7 @@
 HardwareManager::HardwareManager() {
     // initialize buffer
     for (size_t i = 0; i < _bufferSize; ++i) _buffer[i] = 0;
+    pinMode(indicatorLEDPin, OUTPUT);
 }
 
 void HardwareManager::begin() {

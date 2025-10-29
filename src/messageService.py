@@ -1,4 +1,5 @@
 import smtplib
+import time 
 from email.mime.text import MIMEText
 
 SENDER_EMAIL = "jpbleeden@gmail.com"
@@ -7,8 +8,9 @@ RECIPIENT_SMS = "3195699155@vtext.com"  # Verizon SMS gateway
 
 def send_text_alert():
     try:
-        # Create message
-        msg = MIMEText("IR Receiver signal blocked!")
+        # Create message # Critical Safety Event at HH:MM XX on Month/Day/Year
+        timestamp = time.time()
+        msg = MIMEText(f"Critical Safety Event at {time.strftime('%H:%M', time.localtime(timestamp))} on {time.strftime('%m/%d/%Y', time.localtime(timestamp))}")
         msg["Subject"] = "IR Alert"
         msg["From"] = SENDER_EMAIL
         msg["To"] = RECIPIENT_SMS
