@@ -91,33 +91,3 @@ float HardwareManager::getBufferRMS() {
     double meanSq = sumSq / (double)_bufferSize;
     return (float)sqrt(meanSq);
 }
-
-
-
-
-// Print signal stats every second
-        /*
-        static uint32_t lastPrintMs = 0;
-        uint32_t nowMs = millis();
-        if (nowMs - lastPrintMs > 1000) {
-            int lock = getSignalLockState();
-            // Frequency estimation from zero crossings
-            int zeroCrossings = 0;
-            float prev = ((float)_buffer[0] * 3.3f / (float)_adcMax) - 1.65f;
-            for (size_t i = 1; i < _bufferSize; ++i) {
-                float v = ((float)_buffer[i] * 3.3f / (float)_adcMax) - 1.65f;
-                if ((prev < 0 && v >= 0) || (prev > 0 && v <= 0)) {
-                    zeroCrossings++;
-                }
-                prev = v;
-            }
-            float cycles = zeroCrossings / 2.0f;
-            float freq = cycles / (_bufferSize * _sampleIntervalUs * 1e-6f); // cycles per buffer time
-            Serial.print("V, lock state: ");
-            Serial.println(lock == 1 ? "LOCKED" : "UNLOCKED");
-            Serial.print(", freq: ");
-            Serial.print(freq, 1);
-            Serial.println(" Hz");
-            lastPrintMs = nowMs;
-        }
-            */
