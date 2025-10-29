@@ -24,12 +24,12 @@ private:
     const uint16_t _adcMax = 4095; // 12-bit ADC on ESP32
 
     // Sampling buffer (circular)
-    static const size_t _bufferSize = 1024;
+    static const size_t _bufferSize = 512;
     uint16_t _buffer[_bufferSize];
     size_t _bufferHead = 0;
 
     // Sampling timing
-    uint32_t _sampleIntervalUs = 250; // default 4 kHz sample rate => 250 us
+    uint32_t _sampleIntervalUs = 100; // default 10 kHz sample rate => 100 us
     uint32_t _lastSampleUs = 0;
 
     // Latest converted voltage cached
