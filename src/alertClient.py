@@ -2,7 +2,7 @@ import requests, time
 from messageService import send_text_alert
 
 ESP32_URL = "http://192.168.1.1/data"
-POLL_INTERVAL = 2        # seconds between polls
+POLL_INTERVAL = 1        # seconds between polls
 ALERT_COOLDOWN = 20      # seconds between text alerts
 
 def poll_esp32():
@@ -49,3 +49,10 @@ def poll_esp32():
             print("[ERR] Connection error:", e)
 
         time.sleep(POLL_INTERVAL)
+
+def main():
+    while True:
+        poll_esp32()
+
+if __name__ == "__main__":
+    main()
